@@ -1,29 +1,41 @@
-import { createComparison, defaultRules } from "../lib/compare.js";
+export function initFiltering(elements) {
+    function updateIndexes(filterElements, indexes) {
+        Object.entries(indexes).forEach(([elementName, values]) => {
+            const select = filterElements[elementName];
+            if (!select) return;
 
-const compare = createComparison(defaultRules);
-
-export function initFiltering(elements, indexes) {
-    Object.keys(indexes).forEach((elementName) => {
-        elements[elementName].append(
-            ...Object.values(indexes[elementName]).map((name) => {
+            select.append(...Object.values(values).map((name) => {
                 const option = document.createElement("option");
-
                 option.value = name;
                 option.textContent = name;
-
                 return option;
-            }),
-        );
-    });
+            }));
+        });
+    }
 
-    return (data, state, action) => {
-        if (action && action.name === "clear") {
-            const input = action.parentElement.querySelector("input");
+    function applyFiltering(query, state) {
+        const filters = {};
 
-            input.value = "";
-            state[action.dataset.field] = "";
+        ["date", "customer", "seller"].forEach((field) => {
+            const value = state[field]?.trim();
+            if (value) {
+                filters[`filter[${field}]`] = value;
+            }
+        });
+
+        const from = state.totalFrom?.trim() ?? "";
+        const to = state.totalTo?.trim() ?? "";
+
+        if (from !== "") {
+            filters["filter[totalFrom]"] = from;
         }
 
-        return data.filter((row) => compare(row, state));
-    };
+        if (to !== "") {
+            filters["filter[totalTo]"] = to;
+        }
+
+        return { ...query, ...filters };
+    }
+
+    return { updateIndexes, applyFiltering };
 }

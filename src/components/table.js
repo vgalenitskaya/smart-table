@@ -16,22 +16,22 @@ export function initTable(settings, onAction) {
         root.container.append(root[subName].container);
     });
 
-    before.reverse().forEach((subName) => {
+    [...before].reverse().forEach((subName) => {
         root[subName] = cloneTemplate(subName);
         root.container.prepend(root[subName].container);
     });
 
-    root.container.addEventListener("change", () => {
-        onAction();
+    root.container.addEventListener("change", (event) => {
+        onAction(event.target);
     });
 
     root.container.addEventListener("reset", () => {
         setTimeout(onAction);
     });
 
-    root.container.addEventListener("submit", (e) => {
-        e.preventDefault();
-        onAction(e.submitter);
+    root.container.addEventListener("submit", (event) => {
+        event.preventDefault();
+        onAction(event.submitter);
     });
 
     const render = (data) => {
