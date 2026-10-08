@@ -13,26 +13,32 @@ export function initFiltering(elements) {
         });
     }
 
-    function applyFiltering(query, state) {
+    function applyFiltering(query, state, action) {
+        if (action?.name === "clear") {
+            const field = action.dataset.field;
+
+            Object.values(elements).forEach((element) => {
+                if (element.name === field) {
+                    element.value = "";
+                    state[field] = "";
+                }
+            });
+        }
+
         const filters = {};
 
-        ["date", "customer", "seller"].forEach((field) => {
+        Object.values(elements).forEach((element) => {
+            if (!["INPUT", "SELECT"].includes(element.tagName)) {
+                return;
+            }
+
+            const field = element.name;
             const value = state[field]?.trim();
-            if (value) {
+
+            if (field && value) {
                 filters[`filter[${field}]`] = value;
             }
         });
-
-        const from = state.totalFrom?.trim() ?? "";
-        const to = state.totalTo?.trim() ?? "";
-
-        if (from !== "") {
-            filters["filter[totalFrom]"] = from;
-        }
-
-        if (to !== "") {
-            filters["filter[totalTo]"] = to;
-        }
 
         return { ...query, ...filters };
     }

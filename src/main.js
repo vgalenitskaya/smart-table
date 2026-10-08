@@ -39,18 +39,12 @@ let renderVersion = 0;
 
 async function render(action) {
     const version = ++renderVersion;
-    if (action?.name === "clear") {
-        const field = action.dataset.field;
-        const input = sampleTable.filter.elements[`searchBy${field[0].toUpperCase()}${field.slice(1)}`];
-        if (input) input.value = "";
-    }
-
     const state = collectState();
 
     let query = {};
 
     query = applySearching(query, state, action);
-    query = applyFiltering(query, state);
+    query = applyFiltering(query, state, action);
     query = applySorting(query, state, action);
     query = applyPagination(query, state, action);
 
